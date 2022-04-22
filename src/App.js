@@ -1,24 +1,56 @@
-import logo from './logo.svg';
-import './App.css';
+import Header from "./Component/Header/Header";
+import React from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Home from "./Container/Home/Home";
+import Write from "./Container/Write/Write";
+import Contact from "./Container/Contact/Contact";
+import { useDispatch } from "react-redux";
+import { getArticles } from './Service/service';
+import { v4 as uuidv4 } from 'uuid';
+import ArticleDetails from "./Container/ArticleDetails/ArticleDetails";
 
 function App() {
+
+  const dispatch = useDispatch();
+
+  const setInitialArticles = (articles) => {
+    dispatch({
+      type: "SETARTICLES",
+      payload: articles
+    });
+  }
+
+  getArticles().then(res => {
+    const articles = [];
+    res.data.forEach(article => {
+      articles.push({
+        id: uuidv4(),
+        title: article.title,
+        articleText: article.body
+      });
+    });
+    setInitialArticles(articles);
+  });
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <BrowserRouter>
+        <Header />
+        <div className="App">
+          <div className="container">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/*" element={<Home />} />
+              <Route path="/write" element={<Write />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/article/:id" element={<ArticleDetails />} />
+            </Routes>
+          </div>
+        </div>
+      </BrowserRouter>
+    </>
   );
 }
 
